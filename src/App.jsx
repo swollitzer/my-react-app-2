@@ -1,19 +1,14 @@
-import {useState} from 'react';
+import { useState } from 'react';
 
-function Square({value,onSquareClick}){
-
+function Square({ value, onSquareClick }) {
   return (
-    <button
-      className="square" onClick={onSquareClick}
-    >
+    <button className="square" onClick={onSquareClick}>
       {value}
     </button>
   );
 }
- function Board() {
-  const [xIsNext, setXIsNext] = useState(true);
-  const [squares, setSquares] = useState(Array(9).fill(null));
 
+function Board({ xIsNext, squares, onPlay }) {
   function handleClick(i) {
     if (calculateWinner(squares) || squares[i]) {
       return;
@@ -24,8 +19,7 @@ function Square({value,onSquareClick}){
     } else {
       nextSquares[i] = 'O';
     }
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
+    onPlay(nextSquares);
   }
 
   const winner = calculateWinner(squares);
@@ -38,7 +32,7 @@ function Square({value,onSquareClick}){
 
   return (
     <>
-    <div className="status">{status}</div>
+      <div className="status">{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -58,15 +52,20 @@ function Square({value,onSquareClick}){
   );
 }
 
-export default function Game(){
+export default function Game() {
   const [xIsNext, setXIsNext] = useState(true);
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const currentSquares = history[history.length - 1];
 
+  function handlePlay(nextSquares) {
+    setHistory([...history, nextSquares]);
+    setXIsNext(!xIsNext);
+  }
+
   return (
     <div className="game">
       <div className="game-board">
-        <Board />
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
         <ol>{/*TODO*/}</ol>
@@ -84,7 +83,7 @@ function calculateWinner(squares) {
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6]
+    [2, 4, 6],
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
